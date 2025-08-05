@@ -1,0 +1,97 @@
+import streamlit as st
+import torch
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import pandas as pd
+
+# ---- Load Model ----
+@st.cache_resource
+def load_model():
+    local_model_path = r"C:\Users\chris\Downloads\flan-t5-base"  # or Hugging Face path
+    tokenizer = AutoTokenizer.from_pretrained(local_model_path)
+    model = AutoModelForSeq2SeqLM.from_pretrained(local_model_path).to("cpu")
+    return tokenizer, model
+
+tokenizer, model = load_model()
+
+# ---- Metrics ----
+def exact_match(pred, gold):
+    return int(pred.strip().lower() == gold.strip().lower())
+
+def compute_f1(pred, gold):
+    pred_tokens, gold_tokens = pred.split(), gold.split()
+    common = set(pred_tokens) & set(gold_tokens)
+    if not common:
+        return 0
+    precision = len(common) / len(pred_tokens)
+    recall = len(common) / len(gold_tokens)
+    return 2 * (precision * recall) / (precision + recall)
+
+def model_confidence(logits):
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+    max_probs = probs.max(dim=-1).values
+    return max_probs.mean().item()
+
+def get_answer(question, prompt):
+    full_prompt = f"{prompt}\nQuestion: {question}\nAnswer:"
+    inputs = tokenizer(full_prompt, return_tensors="pt").to("cpu")
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_length=64,
+            output_scores=True,
+            return_dict_in_generate=True
+        )
+    answer = tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
+    logits = torch.stack(outputs.scores, dim=1).squeeze(0)
+    confidence = model_confidence(logits)
+    return answer, confidence
+
+# ---- Streamlit UI ----
+st.title("Logical Reasoning Q&A (English)")
+st.write("Uses Flan-T5 for reasoning tasks like blood relation, direction, cause-effect, etc.")
+
+# Prompt setup
+base_prompt = st.text_area("Custom Prompt:", 
+    "You are an expert in logical reasoning. Think step by step and give the correct answer.")
+
+# User Question
+user_question = st.text_input("Enter your logical question:")
+if st.button("Get Answer"):
+    answer, confidence = get_answer(user_question, base_prompt)
+    st.write(f"**Answer:** {answer}")
+    st.write(f"**Confidence:** {confidence:.4f}")
+
+# Evaluation Dataset
+st.subheader("Evaluate on sample dataset")
+if st.button("Run Evaluation"):
+    dataset = pd.DataFrame({
+        "question": [
+            "A is father of B. Who is B to A?",
+            "X moves North, then East. Which direction is X from starting point?"
+        ],
+        "answer": ["Son", "North-East"]
+    })
+
+    results = []
+    correct_predictions = 0
+    for _, row in dataset.iterrows():
+        pred, conf = get_answer(row["question"], base_prompt)
+        em = exact_match(pred, row["answer"])
+        f1 = compute_f1(pred, row["answer"])
+        correct_predictions += em
+        results.append({"Question": row["question"], "Answer": row["answer"],
+                        "Prediction": pred, "EM": em, "F1": f1, "Confidence": conf})
+
+    df = pd.DataFrame(results)
+    st.dataframe(df)
+
+    em_avg = df["EM"].mean()
+    f1_avg = df["F1"].mean()
+    conf_avg = df["Confidence"].mean()
+    accuracy = (correct_predictions / len(dataset)) * 100
+
+    st.write("### Evaluation Metrics")
+    st.write(f"- **Exact Match (EM):** {em_avg:.2f}")
+    st.write(f"- **F1 Score:** {f1_avg:.2f}")
+    st.write(f"- **Confidence:** {conf_avg:.2f}")
+    st.write(f"- **Accuracy:** {accuracy:.2f}%")
