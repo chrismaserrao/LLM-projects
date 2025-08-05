@@ -1,0 +1,94 @@
+import streamlit as st
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+import torch
+import torch.nn.functional as F
+import re
+
+# ------------------- Load IndicBERT QA Model -------------------
+@st.cache_resource
+def load_model():
+    model_name = r"C:\Users\chris\Downloads\indic-bert"  # pretrained QA
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForQuestionAnswering.from_pretrained(model_name)
+    return tokenizer, model
+
+tokenizer, model = load_model()
+
+# ------------------- Utility Functions -------------------
+def normalize_text(text):
+    text = text.lower()
+    text = re.sub(r"[^a-zA-Z0-9\u0900-\u097F\s]", "", text)
+    return " ".join(text.split())
+
+def compute_f1(pred, truth):
+    pred_tokens = normalize_text(pred).split()
+    truth_tokens = normalize_text(truth).split()
+    common = set(pred_tokens) & set(truth_tokens)
+    if len(common) == 0:
+        return 0
+    precision = len(common) / len(pred_tokens)
+    recall = len(common) / len(truth_tokens)
+    return 2 * precision * recall / (precision + recall)
+
+def get_indicbert_answer(question, context):
+    inputs = tokenizer(question, context, return_tensors="pt")
+    with torch.no_grad():
+        outputs = model(**inputs)
+    start_scores, end_scores = outputs.start_logits, outputs.end_logits
+    start_index = torch.argmax(start_scores)
+    end_index = torch.argmax(end_scores) + 1
+    confidence = F.softmax(start_scores, dim=1)[0, start_index] * F.softmax(end_scores, dim=1)[0, end_index-1]
+    answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(inputs["input_ids"][0][start_index:end_index]))
+    return answer, confidence.item()
+
+# ------------------- Streamlit UI -------------------
+st.title("IndicBERT Hindi Question Answering")
+
+# User Inputs
+question = st.text_input("Enter your Hindi question:")
+context = st.text_area("Enter the context (Hindi):")
+
+if st.button("Get Answer"):
+    if question.strip() == "" or context.strip() == "":
+        st.warning("Please enter both question and context!")
+    else:
+        answer, confidence = get_indicbert_answer(question, context)
+        st.subheader("Model Prediction")
+        st.write(f"**Answer:** {answer}")
+        st.write(f"**Confidence:** {confidence:.2f}")
+
+# ------------------- Evaluation Section -------------------
+st.subheader("Evaluate on Small Dataset")
+
+sample_data = [
+    {"question": "सीता के पति कौन हैं?", "context": "राम अयोध्या के राजकुमार हैं। सीता उनकी पत्नी हैं।", "answer": "राम"},
+    {"question": "भारत की राजधानी क्या है?", "context": "भारत की राजधानी नई दिल्ली है।", "answer": "नई दिल्ली"},
+]
+
+if st.button("Run Evaluation"):
+    total_em, total_f1, total_conf, correct = 0, 0, 0, 0
+    results = []
+    for d in sample_data:
+        pred, conf = get_indicbert_answer(d["question"], d["context"])
+        em = 1 if normalize_text(pred) == normalize_text(d["answer"]) else 0
+        f1 = compute_f1(pred, d["answer"])
+        if em == 1:
+            correct += 1
+        total_em += em
+        total_f1 += f1
+        total_conf += conf
+        results.append({"Q": d["question"], "GT": d["answer"], "Pred": pred, "EM": em, "F1": f1, "Conf": conf})
+    
+    n = len(sample_data)
+    accuracy = correct/n
+    metrics = {
+        "Exact Match": total_em/n,
+        "F1 Score": total_f1/n,
+        "Avg Confidence": total_conf/n,
+        "Accuracy": accuracy
+    }
+
+    st.write("### Detailed Predictions")
+    st.table(results)
+    st.write("### Evaluation Metrics")
+    st.json(metrics)
