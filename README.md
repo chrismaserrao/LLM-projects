@@ -15,3 +15,28 @@
 <img width="952" height="1019" alt="Screenshot 2025-08-04 113658" src="https://github.com/user-attachments/assets/505cb764-4f12-437d-a1d8-13eb0c48246a" />
 <img width="964" height="1013" alt="Screenshot 2025-08-05 055440" src="https://github.com/user-attachments/assets/0cfe08b4-eb10-40bd-99d5-f0c42dafc624" />
 <img width="947" height="995" alt="Screenshot 2025-08-05 055641" src="https://github.com/user-attachments/assets/5b7d0181-f6e9-43a5-ab9f-5c907d433104" />
+
+
+#CIA PROJECT LLM
+<img width="1919" height="866" alt="Screenshot 2025-08-26 121647" src="https://github.com/user-attachments/assets/08d2fa63-29e4-46e5-b568-a9e486521081" />
+
+<img width="1869" height="698" alt="Screenshot 2025-08-26 122212" src="https://github.com/user-attachments/assets/15f672cc-364d-4a39-ad9d-88205adae8d3" />
+<img width="1880" height="616" alt="Screenshot 2025-08-26 122225" src="https://github.com/user-attachments/assets/042cba12-d426-4268-881b-1a87361d86b0" />
+<img width="1919" height="713" alt="Screenshot 2025-08-26 122415" src="https://github.com/user-attachments/assets/85df1be5-96ea-46c4-a5fb-225cca1977aa" />
+
+<img width="947" height="564" alt="image" src="https://github.com/user-attachments/assets/b4d2d3da-d4a4-4e71-b7a3-1f733d4c0c0a" />
+<img width="944" height="606" alt="image" src="https://github.com/user-attachments/assets/09189b36-e4e5-45a3-b38c-b0f5da4dbb90" />
+<img width="940" height="540" alt="image" src="https://github.com/user-attachments/assets/87766b52-a854-4d45-98d6-26001d2cdbdc" />
+<img width="950" height="389" alt="image" src="https://github.com/user-attachments/assets/d30ce9d6-b219-4279-b998-71981edd5dc3" />
+
+RESULTS ANALYSIS FOR THE PROJECT
+<img width="740" height="523" alt="image" src="https://github.com/user-attachments/assets/5ad4f2b2-5942-4316-b4c2-c45df0f11dc4" />
+<img width="996" height="632" alt="image" src="https://github.com/user-attachments/assets/b9a10445-c980-4517-a3f5-31ff6d43b44c" />
+<img width="989" height="627" alt="image" src="https://github.com/user-attachments/assets/578f2401-06b5-400b-a370-752e44f0173c" />
+
+
+
+
+
+
+
