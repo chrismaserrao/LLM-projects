@@ -39,6 +39,18 @@ RESULTS ANALYSIS FOR THE PROJECT
 <img width="989" height="627" alt="image" src="https://github.com/user-attachments/assets/578f2401-06b5-400b-a370-752e44f0173c" />
 
 
+Results for lab 7
+<img width="569" height="352" alt="image" src="https://github.com/user-attachments/assets/dcf56b26-b66d-48f5-96fa-75ca133d2033" />
+<img width="568" height="358" alt="image" src="https://github.com/user-attachments/assets/96af03d5-4a8a-4c8f-a1c4-debb4f0939e2" />
+
+Results for lab 8
+
+<img width="1918" height="1025" alt="Screenshot 2025-08-14 004942" src="https://github.com/user-attachments/assets/6436b2cd-0d1e-48ac-9afa-0b6ae2c09842" />
+
+
+
+<img width="1810" height="1076" alt="Screenshot 2025-08-14 105230" src="https://github.com/user-attachments/assets/20ed8afd-e1eb-44bb-8475-a64c6059f4e0" />
+
 
 
 
